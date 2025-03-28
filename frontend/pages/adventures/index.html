@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -82,7 +83,7 @@
                 </div>
             </div>
             <!-- Display Adventures cards -->
-            <div id="adventure-container"></div>
+            <div class="row" id="data"></div>
         </div>
     </div>
     <!-- Footer -->
@@ -106,7 +107,7 @@
             saveFiltersToLocalStorage,
             getFiltersFromLocalStorage,
             generateFilterPillsAndUpdateDOM
-        } from "/frontend/modules/adventures_page.js";
+        } from "../../modules/adventures_page.js";
 
         // Declaring global variable adventure
         let adventures;
@@ -114,9 +115,11 @@
         //Checks if filters are available in local storage and sets the value accordingly
         // The structure of "filters" object is { duration : "6-10", category : [] }, which basically means duration is single-value filter and category is multi-value filter
 
+        let filterFromLocalStorage = getFiltersFromLocalStorage();
+
         let filters =
-            getFiltersFromLocalStorage() !== null
-                ? getFiltersFromLocalStorage()
+            filterFromLocalStorage
+                ? filterFromLocalStorage
                 : { duration: "", category: [] };
 
 
@@ -145,54 +148,65 @@
             // TODO: MODULE_FILTERS
             // 1. Change the DOM to show the selected duration filter. Use the provided input event
             // 2. Invoke saveFiltersToLocalStorage here
-            const duration = event.target.value;
-            filters.duration = duration;
-            saveFiltersToLocalStorage(filters);  // Save to local storage
-            const filteredAdventures = filterFunction(filters, allAdventures);
-            addAdventureToDom(filteredAdventures);
-            generateFilterPillsAndUpdateDOM(filters);
+
+            const value = event.target.value;
+            filters["duration"] = value;
+
+            let filteredAdventures = filterFunction(adventures, filters);
+            addAdventureToDOM(filteredAdventures);
 
         }
 
         //executed when clear button is clicked on duration filter dropdown
-        function clearDuration() {
+        function clearDuration(event) {
             // TODO: MODULE_FILTERS
             // 1. Change the DOM to clear the Duration filter. Refer clearCategory() below
             // 2. Invoke saveFiltersToLocalStorage here
-            filters.duration = null;
-            saveFiltersToLocalStorage(filters); 
-            const filteredAdventures = filterFunction(filters, allAdventures);
-            addAdventureToDom(filteredAdventures);
-            generateFilterPillsAndUpdateDOM(filters);
+
+            document.getElementById("duration-select").selectedIndex = "0"
+
+            filters["duration"] = "";
+
+            const filterAdventure = filterFunction(adventures, filters);
+            addAdventureToDOM(filterAdventure)
+
         }
 
 
 
         //executed when onChange() is triggered on category filter dropdown
         function selectCategory(event) {
-            const category = event.target.value;
-            if (!filters.category.includes(category)) {
-                filters.category.push(category);
-            }
-            saveFiltersToLocalStorage(filters);
-            const filteredAdventures = filterFunction(filters, allAdventures);
-            addAdventureToDom(filteredAdventures);
+            document.getElementById("data").textContent = "";
+            document.getElementById("category-list").textContent = "";
+
+            let category = event.target.value;
+            document.getElementById("category-select").selectedIndex = 0;
+
+            filters["category"].push(category);
+            filters["category"] = filters["category"].filter(onlyUnique);
+
+
             generateFilterPillsAndUpdateDOM(filters);
+            let filteredAdventures = filterFunction(adventures, filters);
+            addAdventureToDOM(filteredAdventures);
 
             // TODO: MODULE_FILTERS
             // 1. Invoke saveFiltersToLocalStorage here
+            saveFiltersToLocalStorage(filters);
         }
 
         //executed when clear button is clicked on category filter dropdown
-        function clearCategory() {
-            filters.category = [];
-            saveFiltersToLocalStorage(filters);
-            const filteredAdventures = filterFunction(filters, allAdventures);
-            addAdventureToDom(filteredAdventures);
-            generateFilterPillsAndUpdateDOM(filters);
+        function clearCategory(event) {
+            document.getElementById("data").textContent = "";
+            document.getElementById("category-list").textContent = "";
+
+            filters["category"] = [];
+            let filteredAdventures = filterFunction(adventures, filters);
+            addAdventureToDOM(filteredAdventures);
 
             // TODO: MODULE_FILTERS
             // 1. Invoke saveFiltersToLocalStorage here
+            saveFiltersToLocalStorage(filters);
         }
 
         //helper function

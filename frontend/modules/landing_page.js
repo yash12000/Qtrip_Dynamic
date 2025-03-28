@@ -1,56 +1,50 @@
 import config from "../conf/index.js";
 
 async function init() {
-  console.log("From init()");
-  console.log(config.backendEndpoint);
-  try {
-    let cities = await fetchCities();
+  //Fetches list of all cities along with their images and description
+  let cities = await fetchCities();
 
-    if (cities) {
-      cities.forEach(city => {
-        addCityToDOM(city.id, city.city, city.description, city.image);
-      });
-    }
-  } catch (error) {
-    console.error('Error during initialization:', error);
-    console.error('Error details:', error.message, error.stack);
+  //Updates the DOM with the cities
+  if (cities) {
+    cities.forEach((key) => {
+      addCityToDOM(key.id, key.city, key.description, key.image);
+    });
   }
 }
 
-
+//Implementation of fetch call
 async function fetchCities() {
+  // TODO: MODULE_CITIES
+  // 1. Fetch cities using the Backend API and return the data
   try {
-    const response = await fetch('http://52.66.232.143:8082/cities');
-    if (!response.ok) {
-      throw new Error('Network response was not ok');
-    }
-    const data = await response.json();
-    return data;
+    const response = await fetch("https://qtrip-dynamic-v9jf.onrender.com/cities");
+    const cityNames = await response.json();
+    console.log(cityNames);
+    return cityNames;
   } catch (error) {
-    // console.log('Error fetching cities:', error);
     return null;
   }
 }
 
-
+//Implementation of DOM manipulation to add cities
 function addCityToDOM(id, city, description, image) {
-  const cityCard = document.createElement("div");
-  cityCard.className = "col-6 col-lg-3 mb-4";
-
-  cityCard.innerHTML = `
-    <a href="pages/adventures/?city=${id}" id="${id}" class="text-decoration-none">
-      <div class="tile">
-        <div class="tile-text text-center">
-          <h5>${city}</h5>
-          <p>${description}</p>
-        </div>
-        <img src="${image}" alt="${city}" class="img-fluid" />
-      </div>
-    </a>
-  `;
-
-  const dataDiv = document.getElementById("data");
-  dataDiv.appendChild(cityCard);
+  // TODO: MODULE_CITIES
+  // 1. Populate the City details and insert those details into the DOM
+  let container = document.createElement("div");
+  container.setAttribute("class", "col-sm-6 col-lg-3 my-4")
+  container.innerHTML = `
+<a href="pages/adventures/?city=${id}" id="${id}" target="_blank">
+<div class="tile">
+<img src="${image}">
+<div class="tile-text text-center">
+<h5>${city}</h5>
+<p>${description}</p>
+</div>
+</div>
+</a>
+`;
+  let parent = document.getElementById("data");
+  parent.append(container);
 }
 
 export { init, fetchCities, addCityToDOM };
